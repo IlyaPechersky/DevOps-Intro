@@ -71,54 +71,72 @@ In the browser, WASM accesses the world through JavaScript bindings. On the serv
 
 ## 5. Spin: The "WASM Containers" Pattern
 
-[Fermyon Spin](https://www.fermyon.com/spin) is the easiest entry to server-side WASM:
+[Spin](https://www.fermyon.com/spin) (created by Fermyon, donated to the **CNCF** in 2024 → SDK now lives under the `spinframework` org) is the easiest entry to server-side WASM. You write a normal-looking Go HTTP handler; the Spin SDK adapts it to a `wasi-http` component:
+
+```go
+// main.go — Spin Go SDK
+package main
+
+import (
+    "fmt"
+    "net/http"
+    spinhttp "github.com/spinframework/spin-go-sdk/v2/http"
+)
+
+func init() {
+    spinhttp.Handle(func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        fmt.Fprintln(w, `{"status":"ok"}`)
+    })
+}
+
+func main() {}
+```
 
 ```toml
 # spin.toml
 spin_manifest_version = 2
-
 [application]
 name = "quicknotes-wasm"
 version = "0.1.0"
-
 [[trigger.http]]
-route = "/..."
-component = "quicknotes"
-
-[component.quicknotes]
+route = "/time"
+component = "moscow-time"
+[component.moscow-time]
 source = "main.wasm"
 allowed_outbound_hosts = []
+[component.moscow-time.build]
+command = "tinygo build -target=wasip1 -buildmode=c-shared -no-debug -o main.wasm ."
 ```
 
 ```bash
-# build the WASM module (Go via TinyGo, or Rust, or…)
-$ tinygo build -o main.wasm -target=wasi ./...
-# or for Spin's preferred path: spin new ... → spin build
-
-# run locally
-$ spin up
-# deploy to Spin Cloud (free tier)
-$ spin deploy
+$ spin new -t http-go moscow-time   # scaffold the CURRENT template
+$ spin build                        # runs tinygo under the hood
+$ spin up                           # serves on :3000
+$ spin deploy                       # → Fermyon Cloud (free tier)
 ```
 
-* ⚡ Spin starts a new instance per request — true serverless. Cold starts measured in **microseconds**
-* 🌐 Each Spin component is its own WASM module with **its own** capability list — you cannot accidentally call code in another component
+* ⚡ Spin instantiates a fresh WASM instance per request — true serverless. Cold starts in **single-digit milliseconds**
+* 🌐 Each component carries its own capability list — it cannot reach code or hosts it wasn't granted
+* 🔑 **`-buildmode=c-shared`** is required: it makes TinyGo export the handler symbols the Spin host calls (omit it → HTTP 500)
+
+> ⚠️ **Tooling churn warning.** WASM server tooling moves fast. The SDK import path changed from `github.com/fermyon/spin/sdk/go/v2` to `github.com/spinframework/spin-go-sdk/v2` with the CNCF donation. **Always `spin new -t http-go` to get the current template** rather than copy-pasting an old `spin.toml`.
 
 ---
 
-## 6. WAGI: Even Simpler, "CGI for WASM"
+## 6. The Older Model: WAGI ("CGI for WASM") — Deprecated
 
-For workloads that look like CGI (HTTP in, HTTP out, no fancy state), the **WAGI** executor maps stdin/stdout to HTTP:
+Before the `wasi-http` Component Model matured, Spin offered a **WAGI** executor that mapped HTTP onto stdin/stdout, CGI-style: the module read request info from environment variables, wrote the response to stdout. It was the simplest possible Go-to-WASM port.
 
 ```toml
+# ❌ DEPRECATED — removed in Spin 3.x
 [component.quicknotes]
 source = "main.wasm"
-executor = { type = "wagi" }
+executor = { type = "wagi" }      # `spin up` rejects this field in 3.x
 ```
 
-* 📨 The WASM module reads the HTTP request from stdin (CGI variables), writes the HTTP response to stdout
-* 🪶 No HTTP server needed inside your module — the runtime is the server
-* 🧪 Lab 12 uses WAGI to keep the QuickNotes WASM port minimal
+* 🪦 **Spin 3.x removed the inline WAGI executor.** Modern Spin uses the `wasi-http` component model (Section 5)
+* 🧰 The WAGI *pattern* still lives on in bare `wasmtime run`: a standalone WASI module reads env + stdin, writes stdout. Lab 12's Bonus uses exactly this to contrast the two execution models — Spin's persistent `wasi-http` server vs wasmtime's per-invocation CLI
 
 ---
 
@@ -185,10 +203,11 @@ These platforms run WASM modules at **300+ POPs** worldwide:
 
 ## 11. Lab 12 Preview
 
-Lab 12 is the **WASM bonus lab**. Two tasks (no Bonus row — the whole lab is bonus):
+Lab 12 is the **WASM bonus lab** — itself worth 10 pts, structured 4+4+2:
 
-* 🔨 **Task 1 (6 pts):** Build a minimal `time` endpoint (returns current Moscow time as JSON) in Go → WASM via TinyGo → packaged as a Spin component running under WAGI. Compare deployed size vs the QuickNotes Docker image
-* 🏎️ **Task 2 (4 pts):** Benchmark request latency: warm Cloud Run (Lab 10) vs warm `spin up` (Lab 12). Then compare cold-starts. Plot the distributions and explain what dominates each curve
+* 🔨 **Task 1 (4 pts):** Build a minimal `time` endpoint (returns current Moscow time as JSON) in Go → WASM via TinyGo → packaged as a Spin SDK `wasi-http` component, served by `spin up`. Compare deployed size vs the QuickNotes Docker image
+* 🏎️ **Task 2 (4 pts):** Benchmark request latency: warm Lab 6 Docker container vs warm `spin up`. Then compare cold-starts. Explain what dominates each curve
+* 🎁 **Bonus (2 pts):** Rebuild the same logic as a standalone WASI CLI module, run under bare `wasmtime run`, and contrast the two execution models (Spin's persistent `wasi-http` server vs wasmtime's per-invocation CLI)
 * 📜 Deliverable: `submissions/lab12.md` — spin.toml, build sizes, perf numbers, written reflection
 
 ---

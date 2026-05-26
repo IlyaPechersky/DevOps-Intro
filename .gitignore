@@ -1,36 +1,41 @@
-# Student-produced artifacts
-# (`submissions/labN.md` IS committed by students to their fork's
-#  PR — do NOT ignore it. `refs/` is instructor-only dry-run output.)
+# ⚠️  KEEP THIS FILE MINIMAL.
+#
+# This .gitignore is inherited by every student fork. Anything listed here
+# is something a student CANNOT `git add` without `-f`. So this file must
+# ONLY contain:
+#   (a) instructor-only paths (refs/), and
+#   (b) machine-generated junk that NOBODY should ever commit.
+#
+# Do NOT add lab DELIVERABLES here (scan reports, SBOMs, go.sum, k8s
+# manifests, CI workflows, Dockerfiles, playbooks, dashboards, …). Students
+# are told to commit those in their submission PRs — ignoring them upstream
+# silently breaks the lab. When in doubt, leave it OUT of this file.
 
-# Instructor-only reference submissions (dry-run results, not student deliverables)
+# ── Instructor-only ─────────────────────────────────────────────
+# Reference submissions (dry-run worked examples). Never pushed upstream;
+# students never see these. This is the one path that is intentionally hidden.
 refs/
 
-# Vagrant + VirtualBox runtime state (Lab 5)
-.vagrant/
-
-# Build artifacts the labs may produce locally
+# ── Machine-generated junk (no one commits these) ───────────────
+# Compiled binaries / local runtime state
 app/quicknotes
 app/data/
+/quicknotes
+*.exe
 
-# Docker
-docker-compose.override.yaml
-*.pcap
+# Vagrant runtime state (Lab 5) — the Vagrantfile IS committed; .vagrant/ is not
+.vagrant/
 
-# Nix (Lab 11)
+# Nix build symlinks (Lab 11) — flake.nix + flake.lock ARE committed; result is not
 result
 result-*
 
-# WASM (Lab 12)
-wasm/main.wasm
-wasm/go.sum
-
-# Cloud (Lab 10)
-.gcloudignore
+# Terraform state — MUST never be committed (can contain secrets)
 *.tfstate
 *.tfstate.backup
 .terraform/
 
-# Python venvs that students sometimes create
+# Python virtualenvs / caches
 .venv/
 __pycache__/
 *.pyc
@@ -40,15 +45,19 @@ __pycache__/
 .idea/
 *.swp
 
-# OS
+# OS noise
 .DS_Store
 Thumbs.db
 
-# CI artifacts
-zap-baseline.html
-zap-baseline.json
-trivy-*.txt
-*.sbom.cdx.json
-
-# Claude / agent local config
+# Local agent config (not part of the course)
 .claude/
+
+# NOTE: deliberately NOT ignored, because students commit them as lab evidence:
+#   submissions/labN.md        (lab reports)
+#   .github/workflows/*.yml    (Lab 3 CI)
+#   Dockerfile, compose.yaml   (Lab 6)
+#   ansible/                   (Lab 7)
+#   monitoring/                (Lab 8)
+#   *.sbom.cdx.json, zap-*.html/json, trivy-*.txt   (Lab 9 scan evidence)
+#   flake.nix, flake.lock      (Lab 11)
+#   wasm/main.go, spin.toml, go.sum   (Lab 12)
