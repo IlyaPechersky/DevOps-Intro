@@ -1,798 +1,380 @@
-# 📌Lecture 1 - Introduction to DevOps
+# 📌 Lecture 1 — Introduction to DevOps: From Conflict to Collaboration
 
-## 📍 Slide 1 – 🚀 What is DevOps?
+---
 
-* 🧩 **Definition**: DevOps = **Development (👨‍💻 Dev)** + **Operations (⚙️ Ops)**.
-* 🎯 **Purpose**: A cultural and technical movement to deliver applications **faster**, **more reliable**, and **securely**.
-* 🏗️ **Not only tools** → it is **culture, mindset, and practices**.
-* 🔄 **Extension of Agile (⚡)** → applies Agile principles beyond coding into **deployment, monitoring, and feedback**.
-* 💡 **Key idea**: Treat infrastructure and delivery pipelines as **products**, not afterthoughts.
+## 📍 Slide 1 – 💥 When a 45-Minute Deploy Killed a Bank
 
-**Mermaid Diagram:**
+* 🗓️ **August 1, 2012, 9:30 a.m. ET** — Knight Capital, the largest US equities trader, pushes a new release of its order-routing software (SMARS) to 8 production servers
+* 🚨 One server was missed during the manual deploy — it kept running **old, dead code** that re-activated a long-disused flag called **Power Peg**
+* 💸 In the first **45 minutes** of market open, the rogue server submitted **4 million erroneous orders**, accumulating a **$440 million loss**
+* 🏦 Knight had to be rescued, then acquired by Getco by December 2012 — gone as an independent firm
+* 🎓 **Lesson:** A single bad deploy can sink a 1,000-person company. *How* you ship is now as important as *what* you ship
+
+> 🤔 **Think:** Knight had top-tier traders and top-tier code. What they didn't have was DevOps — automated deploys, kill switches, rollback. Could the same incident hit you tomorrow?
+
+---
+
+## 📍 Slide 2 – 🎯 Learning Outcomes
+
+By the end of this lecture you will:
+
+| # | 🎓 Outcome |
+|---|-----------|
+| 1 | ✅ Explain what DevOps is, who coined the term, and the problem it solves |
+| 2 | ✅ Describe the Three Ways and the CALMS framework |
+| 3 | ✅ Cite the four DORA metrics and what elite vs low performance looks like |
+| 4 | ✅ Use Git's mental model: working tree → index → repository |
+| 5 | ✅ Set up signed commits and a PR template to make collaboration safer |
+| 6 | ✅ Recognize that GitHub and GitLab are both valid paths for the rest of this course |
+
+---
+
+## 📍 Slide 3 – 🗺️ Lecture Overview
 
 ```mermaid
-flowchart LR
-  Dev[👨‍💻 Development] -->|🤝 Collaboration| DevOps[🚀 DevOps]
-  Ops[⚙️ Operations] -->|🤝 Collaboration| DevOps
-  DevOps -->|⚡ Faster, Reliable Delivery| Users[🙋 End Users]
+graph LR
+    A["💥 Knight Capital"] --> B["📜 DevOps History"]
+    B --> C["🛤️ Three Ways<br/>CALMS"]
+    C --> D["📊 DORA Metrics"]
+    D --> E["🌳 Git Workflow"]
+    E --> F["🔐 Signed Commits<br/>PRs"]
+    F --> G["📝 Real Incidents<br/>Blameless Postmortems"]
 ```
 
----
-
-## 📍 Slide 2 – 📜 A Brief History of DevOps
-
-* 🕰️ **Pre-2007**: “Wall of confusion” between **Dev teams (new features)** and **Ops teams (stability)**.
-* 💡 **2007–2008**: Ideas of “Agile Infrastructure” and “Agile Systems Administration”.
-* 🎤 **2009**: Patrick Debois organizes **first DevOpsDays** in Belgium.
-* 🌍 **2010–2012**: DevOpsDays events spread globally, the word “DevOps” becomes mainstream.
-* 🏢 Early adopters: **Amazon (📦)**, **Netflix (🎬)**, **Google (🔎)**.
-
-⚡ **Historical fact**: At Amazon, a developer could take **weeks** to deploy. After adopting DevOps → **minutes**.
+* 📍 Slides 1-4 — Why DevOps exists at all
+* 📍 Slides 5-9 — History, frameworks, and how to measure DevOps
+* 📍 Slides 10-13 — Git from first principles
+* 📍 Slides 14-18 — Your course project, fork→PR, signed commits, templates
+* 📍 Slides 19-22 — Real incidents, culture, and what Lab 1 asks of you
 
 ---
 
-## 📍 Slide 3 – 🎯 Why DevOps? (Key Goals)
+## 📍 Slide 4 – 🧱 The Wall of Confusion
 
-* ⏱️ **Faster delivery** → reduce **time-to-market** for features.
-* 🔄 **Continuous improvement** → frequent, safe updates.
-* 💡 **Higher innovation** → teams can experiment with less risk.
-* 🔒 **Reliability & security** → stable releases, fewer failures.
-* 👥 **Collaboration & trust** → developers + operations = **shared ownership**.
-
-**Mermaid Diagram:**
+Before DevOps had a name, software shops looked like this:
 
 ```mermaid
-flowchart TD
-  Fast[⏱️ Faster Delivery] --> Innov[💡 Innovation]
-  Fast --> Rel[🔒 Reliability]
-  Fast --> Collab[👥 Collaboration]
-  Fast --> Improve[🔄 Continuous Improvement]
+graph LR
+    D["👨‍💻 Dev<br/>'Ship features fast!'"] -- 🧱 throws code over --> O["🛡️ Ops<br/>'Stop breaking prod!'"]
+    O -- 🧱 throws blame back --> D
 ```
+
+* 🏢 **Dev** got rewarded for new features → pushed code as fast as possible
+* 🛡️ **Ops** got rewarded for uptime → resisted every release
+* 💥 The incentives **directly conflicted**, so every deploy was a fight
+* 🎢 Releases happened **once a quarter**, at 2 a.m., under a freeze, with rollback plans written in Word docs
+
+> 💬 *"It's like a relay race where the runners hate each other."* — paraphrasing John Allspaw, ca. 2009
 
 ---
 
-## 📍 Slide 4 – ⚖️ DevOps vs. Traditional IT
+## 📍 Slide 5 – 📜 The Birth of DevOps (2008–2009)
 
-* 🐢 **Traditional (Waterfall)**:
+* 🇨🇦 **August 2008, Toronto** — at Agile Conference, **Andrew Shafer** proposes a session called *"Agile Infrastructure"*. Almost no one shows up — except **Patrick Debois**
+* 🇧🇪 **October 30–31, 2009, Ghent** — Debois organizes the first **DevOpsDays**, named so it would fit a Twitter hashtag
+* 🐦 The conversation explodes on `#devops` and never stops
+* 📺 Earlier that year (June 2009 at Velocity), **John Allspaw and Paul Hammond** of Flickr give the legendary talk **"10+ Deploys per Day: Dev and Ops Cooperation"** — proof the model works
+* 📚 **2013** — Gene Kim's novel *The Phoenix Project* makes DevOps mainstream literature
 
-  * Steps in sequence → **Requirements → Design → Build → Test → Deploy**.
-  * Releases once every **months or years**.
-* ⚡ **Agile + DevOps**:
+> 💬 *"DevOps was a movement before it was a term."* — Patrick Debois
 
-  * Short iterations, feedback loops, automation.
-  * Releases **daily or weekly**.
-* 🔗 **DevOps bridges Agile & Operations** → **deployment is part of the development cycle**.
+---
 
-**Mermaid Diagram:**
+## 📍 Slide 6 – 🛤️ The Three Ways (Gene Kim)
+
+From *The Phoenix Project* (2013) and *The DevOps Handbook* (2016):
+
+| # | Way | Mental model | What it asks of you |
+|---|----|--------------|---------------------|
+| 1 | 🛤️ **Flow** | Left-to-right: idea → code → prod | Optimize the whole stream, not the local task |
+| 2 | 🔁 **Feedback** | Right-to-left: prod telling Dev what happened | Shorter loops, more signals, no blame |
+| 3 | 🧪 **Continual Learning** | Experiment + amplify what worked | Blameless postmortems; deliberate practice |
+
+> 🤔 **Think:** Which "Way" was Knight Capital missing the most?
+
+---
+
+## 📍 Slide 7 – 🔤 The CALMS Framework
+
+| Letter | What it means | Concrete signal |
+|--------|---------------|-----------------|
+| **C** | **Culture** | Devs and Ops sit together; nobody says "throw it over the wall" |
+| **A** | **Automation** | A deploy is a `git push`, not a 14-step runbook |
+| **L** | **Lean** | Small batch sizes; finish a thing before starting the next |
+| **M** | **Measurement** | You can name your deploy frequency and MTTR off the top of your head |
+| **S** | **Sharing** | Postmortems, blogs, internal demos — knowledge is not hoarded |
+
+*Coined as CAMS by John Willis & Damon Edwards in 2010; **L** for Lean added later by Jez Humble.*
+
+> 💬 *"If you can't measure it, you can't improve it."* — Peter Drucker, often invoked by the M
+
+---
+
+## 📍 Slide 8 – 📊 DORA: The Four Key Metrics
+
+The **DevOps Research and Assessment** group (DORA, founded ~2014, acquired by Google 2018) studied tens of thousands of teams. Four metrics predict performance:
+
+| Metric | What it captures | Elite teams |
+|--------|------------------|-------------|
+| 🚀 **Deployment frequency** | How often you ship to prod | Multiple times per day |
+| ⏱️ **Lead time for changes** | Commit → in production | < 1 hour |
+| 🔁 **Change failure rate** | % of deploys that need a fix | 0–15% |
+| 🛠️ **MTTR** | Mean time to recover from an incident | < 1 hour |
+
+From 2021, a fifth metric — **Reliability** — was added to track operational stability.
+
+> 📖 **Read:** *Accelerate* by Forsgren, Humble & Kim (2018) — the scientific paper-form of these findings
+
+---
+
+## 📍 Slide 9 – 🥇 Elite vs Low Performers
+
+```mermaid
+graph LR
+    L["🐌 Low<br/>once / 6 mo<br/>MTTR weeks"] --> M["🚶 Medium<br/>weekly<br/>MTTR days"]
+    M --> H["🏃 High<br/>daily<br/>MTTR hours"]
+    H --> E["🏎️ Elite<br/>on demand<br/>MTTR < 1h"]
+```
+
+* 🐌 Low performers and Elite performers differ by **~200×** on deployment frequency
+* 🔁 Elite teams also have **lower** change failure rates — speed and safety go together
+* ❌ "Move fast and break things" is **not** the elite pattern. Elite is **move fast and don't break things, because feedback loops are tight**
+
+> 🤔 **Think:** Which bucket does the project you'll graduate to next year sit in? Which would you want it in?
+
+---
+
+## 📍 Slide 10 – 🌳 Why Git? Why Now?
+
+DevOps needs a **single source of truth** for code, infra, and process. Git is that truth:
+
+* 📦 The Git repository is **all of history** plus the current state — every laptop has a full copy
+* 🤝 Pull requests turn "review my code" into a **collaboration protocol**, not a favor
+* 🔁 Branches let you experiment without breaking the trunk
+* 🤖 CI/CD systems (next week) **react to Git events** — a push triggers a pipeline, a tag triggers a release
+
+> 💬 *"Git is the assembly language of collaboration."* — folklore, attributed to many
+
+---
+
+## 📍 Slide 11 – 📜 Where Git Came From
+
+* 🐧 **April 2005** — Linus Torvalds writes Git in roughly **10 days** after the Linux kernel loses access to BitKeeper
+* 🎯 Design goals: speed, distributed model, integrity (cryptographic hashes), strong support for non-linear development
+* 😏 On the name: *"I'm an egotistical bastard, and I name all my projects after myself. First Linux, now Git."* — Linus
+* 🪪 In **November 2021** (Git **2.34**), Git gained native **SSH commit signing** — no GPG keyring required
+* 🆕 By April 2026 we're on **Git 2.49+** — `git switch`, `git restore`, `git maintenance` are the modern ergonomics
+
+> 📖 **Book:** *Pro Git* (Scott Chacon & Ben Straub) — free at [git-scm.com/book](https://git-scm.com/book)
+
+---
+
+## 📍 Slide 12 – 🧠 Git's Mental Model
+
+```mermaid
+graph LR
+    W["📂 Working tree"] -- "git add" --> I["📋 Index<br/>(staging)"]
+    I -- "git commit" --> R["🗄️ Local repo"]
+    R -- "git push" --> O["☁️ Remote"]
+    O -- "git fetch / pull" --> R
+```
+
+| Stage | What it is | Common command |
+|-------|------------|----------------|
+| 📂 Working tree | Files on disk you can edit | `git status` |
+| 📋 Index | "What I plan to commit" | `git add -p` |
+| 🗄️ Local repo | Permanent history on *your* machine | `git commit -s -S` |
+| ☁️ Remote | Shared truth (GitHub / GitLab) | `git push origin feature/x` |
+
+> 🤔 **Think:** Why does Git separate "Index" from "Working tree"? *(Hint: ever made a typo *just* before committing?)*
+
+---
+
+## 📍 Slide 13 – 🌿 Branching Strategies in 90 Seconds
+
+| Strategy | Branch lifetime | Where it shines |
+|----------|-----------------|-----------------|
+| 🌲 **Trunk-based** | Hours | Continuous delivery, large teams, feature flags |
+| 🌳 **GitHub Flow** | Days | SaaS apps, this course |
+| 🌴 **GitFlow** | Weeks-Months | Versioned products with long support windows |
+
+* ✅ This course uses **GitHub Flow** — short-lived `feature/labN` branches, one PR per lab
+* ❌ Avoid: a `develop` branch nobody merges, six-month feature branches that never come home, "let's just push to main on Friday afternoon"
+
+> 💬 *"The longer your branch lives, the more it hurts to merge."* — every senior engineer eventually
+
+---
+
+## 📍 Slide 14 – 🧪 Your Course Project: QuickNotes
+
+Across **all 10 labs** you'll work on one small Go service: **QuickNotes**.
+
+```mermaid
+graph LR
+    C["💻 curl / browser"] -->|HTTP :8080| S["🟢 quicknotes<br/>Go 1.24"]
+    S --> F["📄 data/notes.json"]
+    S -->|GET /metrics| P["📊 Prometheus<br/>(Week 8)"]
+```
+
+* 🟢 **Endpoints:** `GET /notes`, `GET /notes/{id}`, `POST /notes`, `DELETE /notes/{id}`, `GET /health`, `GET /metrics`
+* 🛠️ You don't write the app — you **package it, ship it, observe it, and harden it**
+* 📈 By Lab 10, the same code will live behind your own CI, in a container, on a cluster, behind monitoring and security scans, deployed to a real cloud
+
+> 🤔 **Think:** Why one project for 10 weeks? Because that's how DevOps actually feels at work.
+
+---
+
+## 📍 Slide 15 – 🍴 The Fork → Branch → PR Workflow
 
 ```mermaid
 sequenceDiagram
-  participant User as 🙋 User
-  participant Dev as 👨‍💻 Dev
-  participant Ops as ⚙️ Ops
-
-  User->>Dev: 📝 Request Feature
-  Dev->>Ops: 📦 Handover Code
-  Ops-->>User: 🚀 Deployment (Traditional)
-
-  Dev->>Dev: 🤖 CI/CD Automation
-  Dev->>Ops: 🔄 Continuous Deployment
-  Ops-->>User: ⚡ Faster Delivery (DevOps)
+    participant U as 👤 You
+    participant F as 🍴 Your fork
+    participant C as 📚 Course repo
+    U->>F: git clone
+    U->>F: git switch -c feature/lab1
+    U->>F: edit, commit, push
+    U->>C: open PR (fork:feature/lab1 → course:main)
+    C->>U: reviewer comments
+    U->>F: fixup commits
+    C->>U: ✅ merge / feedback
 ```
+
+* 1️⃣ **Fork** the course repo on GitHub *or* GitLab
+* 2️⃣ **Clone** your fork locally
+* 3️⃣ **Branch** per lab: `feature/lab1`, `feature/lab2`, …
+* 4️⃣ **Commit** small, signed, and with a message that reads like a sentence
+* 5️⃣ **Push** to *your* fork, never directly to the course repo
+* 6️⃣ **Open** a PR back to the course repo's `main`
 
 ---
 
-## 📍 Slide 5 – 🔑 Core Principles: The CAMS Model
+## 📍 Slide 16 – 🔐 Signed Commits & the Supply Chain
 
-* 🌱 **C = Culture** → trust, collaboration, shared responsibility.
-* 🤖 **A = Automation** → eliminate manual, error-prone work.
-* 📊 **M = Measurement** → track performance with metrics:
+* 🕵️ Anyone can put **any name and email** in `git config` — your commit history is unauthenticated by default
+* 💥 Real consequences: in **March 2024**, an attacker (account `JiaT75`) maintained the **xz-utils** project for two years and slipped in a backdoor that nearly compromised every SSH daemon on Linux
+* 🪪 A signed commit is a cryptographic claim: *"this commit really was made by the holder of this key"*
+* ✅ Git supports **SSH signing** since **2.34** (Nov 2021) — no GPG keyring, just reuse your SSH key
 
-  * ⏱️ **MTTR = Mean Time to Recovery** (how fast systems recover).
-  * ❌ **CFR = Change Failure Rate** (percentage of failed changes).
-* 🔗 **S = Sharing** → knowledge, successes, and failures → **blameless postmortems**.
-
-**Mermaid Diagram:**
-
-```mermaid
-graph TD
-  C[🌱 Culture] --> DevOps[🚀 DevOps]
-  A[🤖 Automation] --> DevOps
-  M[📊 Measurement] --> DevOps
-  S[🔗 Sharing] --> DevOps
+```sh
+# ✅ enable SSH signing (one-time)
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/id_ed25519.pub
+git config --global commit.gpgsign true
 ```
+
+> 🤔 **Think:** Would you merge a PR from a contributor whose commits showed "Unverified" on GitHub?
 
 ---
 
-## 📍 Slide 6 – 🌱 Culture in DevOps
+## 📍 Slide 17 – 📜 Pull Request Templates
 
-* 🤝 **Collaboration** → Dev, Ops, QA, Security = **one team**.
-* 🔓 **Transparency** → clear communication, shared dashboards.
-* 🧠 **Psychological safety** → people can experiment, fail, and learn without blame.
-* 🎯 **Shared responsibility** → success/failure is **team-owned**.
-
-```mermaid
-graph TD
-  Dev[👨‍💻 Developers] --> Culture[🌱 DevOps Culture]
-  Ops[⚙️ Operations] --> Culture
-  QA[🧪 QA] --> Culture
-  Sec[🔒 Security] --> Culture
-  Culture --> Success[🚀 Success Together]
-```
-
----
-
-## 📍 Slide 7 – 🔄 Shift-Left Mindset
-
-* ⏪ **Definition**: Moving testing & security **earlier** in the development cycle.
-* 🧪 **Continuous testing** → run unit/integration tests at each commit.
-* 🔒 **Security shift-left** → static analysis (SAST), dependency scans before deployment.
-* 📊 **Benefits**: Catch bugs early, reduce fix cost, speed releases.
-
-**YAML Example (GitHub Action – security scan):**
-
-```yaml
-name: Security Scan
-on: [push]
-jobs:
-  scan:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run dependency check
-        run: npm audit   # 🔒 Scans for vulnerabilities
-```
-
----
-
-## 📍 Slide 8 – 👥 Collaboration Between Teams
-
-* 🧩 **Breaking silos** → Dev + Ops + QA + Security work **together**.
-* 📡 **Tools**: Slack (💬), Jira (📑), Confluence (📚).
-* 🏃 **DevOps + Agile** → combine Scrum ceremonies with continuous delivery.
-* 📈 **Outcome**: Faster decisions, fewer blockers, stronger trust.
-
-```mermaid
-flowchart LR
-  Dev[👨‍💻 Dev] --> Collab[🤝 Collaboration]
-  Ops[⚙️ Ops] --> Collab
-  QA[🧪 QA] --> Collab
-  Sec[🔒 Security] --> Collab
-  Collab --> Output[⚡ Better Delivery]
-```
-
----
-
-## 📍 Slide 9 – 🔔 Feedback Loops
-
-* 📡 **Fast feedback** = quick alerts when issues occur.
-* 🧑‍💻 **Examples**: Build fails, unit tests break, monitoring alerts.
-* 🔄 **Continuous feedback** = improves product quality.
-* 📊 **Best practice**: dashboards with real-time metrics (Grafana 📊, Prometheus 📈).
-
-```mermaid
-flowchart LR
-  Code[👨‍💻 Code Change] --> CI[🤖 CI/CD Pipeline]
-  CI --> Alerts[🔔 Test/Build Feedback]
-  Alerts --> Dev[👨‍💻 Developers]
-  Dev --> Fix[🛠️ Fix & Improve]
-  Fix --> Code
-```
-
----
-
-## 📍 Slide 10 – 📚 Continuous Learning & Blameless Postmortems
-
-* 🎓 **Continuous learning** = retrospectives, improving processes.
-* 🔎 **Blameless postmortems**:
-
-  * ❌ Not about finding who to punish.
-  * ✅ About preventing **future failures**.
-* 📖 Teams share knowledge → collective intelligence grows.
-* 📈 Example: **Google SRE** uses **blameless incident reviews**.
-
-**Sample Postmortem Checklist (Markdown):**
+A PR template lives at `.github/pull_request_template.md` (GitHub) or `.gitlab/merge_request_templates/Default.md` (GitLab) and **auto-fills the PR description**.
 
 ```markdown
-# 🔎 Incident Postmortem
-- 📅 Date/Time:
-- 📝 Summary:
-- ⚡ Impact:
-- 🧑‍💻 Root Cause:
-- 🔄 Remediation Steps:
-- 📚 Lessons Learned:
+## Goal
+What does this PR accomplish?
+
+## Changes
+- bullet
+- bullet
+
+## Testing
+How did you verify it?
+
+## Checklist
+- [ ] Title is a clear sentence
+- [ ] Commits are signed
+- [ ] Docs / submission file updated
 ```
+
+* ✅ Templates make reviews **predictable** — the same sections every time
+* ✅ They surface **what you tested** before reviewers have to ask
+* ❌ Keep them **short**. Long templates get deleted by the author
 
 ---
 
-## 📍 Slide 11 – 🏗️ Infrastructure as Code (IaC)
+## 📍 Slide 18 – 🦊 GitHub or GitLab? Both Are Fine
 
-* 📜 **Definition**: Manage servers, networks, infra using **code**.
-* 🛠️ Tools: Terraform (🌍), Ansible (🧩), Pulumi (📦).
-* 🎯 **Benefits**:
+| Feature | GitHub | GitLab |
+|---------|--------|--------|
+| Hosting | github.com | gitlab.com or self-hosted CE |
+| Branch protection | ✅ | ✅ |
+| Code review | Pull Request | Merge Request |
+| CI | GitHub Actions | GitLab CI/CD |
+| SSH commit signing | ✅ (verified badge) | ✅ (verified badge) |
+| Free private repos | ✅ | ✅ |
 
-  * ✅ Reproducibility.
-  * ✅ Scalability.
-  * ✅ Git version control for infra.
+* 🚫 **Some students lose access to GitHub** for reasons outside their control — sanctions, account locks, country-of-origin filters
+* ✅ Every lab in this course offers a **GitLab path**. Lab 3 explicitly mirrors the CI pipeline to `.gitlab-ci.yml` as a Bonus Task
+* 🏛️ Innopolis itself runs an internal GitLab at `gitlab.pg.innopolis.university` — that's your safety net
 
-**Terraform Example:**
-
-```hcl
-resource "aws_instance" "web" {
-  ami           = "ami-0c55b159cbfafe1f0" # 📦 Amazon Linux
-  instance_type = "t2.micro"
-}
-```
+> 🤔 **Think:** The *concepts* — branches, PRs, CI — are platform-independent. The tool is replaceable; the discipline isn't.
 
 ---
 
-## 📍 Slide 12 – 🔄 Continuous Integration (CI) Basics
+## 📍 Slide 19 – 🔥 When DevOps Wasn't There: Real Incidents
 
-* 📜 **Definition**: Developers frequently merge code → shared repo.
-* 🧪 Automated **tests/builds** run on each commit.
-* ⏱️ **Goal**: detect issues **early**.
-* 🛠️ Tools: Jenkins (☕), GitHub Actions (🐙), GitLab CI (🦊), CircleCI (🔵).
+| 🗓️ Date | 🏢 Who | 💥 What broke | 🎓 What it teaches |
+|--------|--------|---------------|---------------------|
+| 2012-08-01 | Knight Capital | Stale code on 1 of 8 servers → $440M in 45 min | **Automate deploys; never trust manual checklists** |
+| 2017-01-31 | GitLab.com | Engineer `rm -rf`-ed primary DB; 5 of 5 backups broken | **Test your restores, not just your backups** |
+| 2017-02-28 | AWS S3 us-east-1 | Typo in a maintenance command removed too many capacity nodes | **Blast-radius limits; canaries; reversible commands** |
+| 2024-07-19 | CrowdStrike | Faulty kernel-mode update → 8.5M Windows hosts in BSOD loop | **Staged rollouts; reversible deploys; vendor risk** |
+| 2024-03 | xz-utils backdoor | 2-year social-engineering attack on a single maintainer | **Code provenance; signed commits; SBOMs (Lab 9)** |
 
-**YAML Example (GitHub Actions CI):**
-
-```yaml
-name: CI Pipeline
-on: [push]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2  # 📥 Checkout repo
-      - run: npm install            # 📦 Install deps
-      - run: npm test               # 🧪 Run tests
-```
+> 📝 **Read:** [GitLab database incident postmortem (2017)](https://about.gitlab.com/blog/2017/02/01/gitlab-dot-com-database-incident/) — frank, painful, and instructive
 
 ---
 
-## 📍 Slide 13 – 🚀 Continuous Delivery & Deployment (CD)
+## 📍 Slide 20 – 🪶 Blameless Postmortems
 
-* 📜 **Continuous Delivery (CD)** = Code is always in a **deployable state**, but deployments may need **manual approval**.
-* 🤖 **Continuous Deployment** = Every change that passes automated tests is **deployed automatically** → no human needed.
-* 🎯 **Goal**: Faster time-to-market, fewer risks.
-* ⚠️ **Difference**: *Delivery = ready, Deployment = automatic*.
+A postmortem is a written record of **what happened, why, and what changes**. Done well, it's the most valuable artifact of an outage.
 
-```mermaid
-flowchart LR
-  Code[👨‍💻 Code Commit] --> Build[⚙️ Build & Test]
-  Build --> Delivery[📦 Continuous Delivery]
-  Delivery -->|Manual Approval| Deploy[🚀 Deployment]
-  Delivery -->|Auto Deploy| AutoDeploy[🤖 Continuous Deployment]
-```
+| 🔥 Blameful | ✅ Blameless |
+|-------------|-------------|
+| "Alice pushed bad code" | "The deploy pipeline allowed an untested change to reach prod" |
+| "Bob didn't read the runbook" | "The runbook was 41 pages long and last updated in 2019" |
+| Punishment, hidden incidents | Learning, surfaced incidents, future-proof fixes |
 
----
+* 🧪 The goal is to make the **system** safer, not to find a person to blame
+* 📚 Norms set by John Allspaw at Etsy (~2012) and codified in the **Google SRE Workbook**, Chapter 9
+* ✅ Every serious lab in this course ends with a `submissions/labN.md` — your mini-postmortem of how the lab went
 
-## 📍 Slide 14 – 🐮 Cattle vs. Pets (Immutable Infrastructure)
-
-* 🐶 **Pets (Old model)**:
-
-  * Servers are **unique**, manually maintained.
-  * If broken → try to fix.
-* 🐮 **Cattle (Modern model)**:
-
-  * Servers are **identical, automated**.
-  * If broken → replace with a new one.
-* 🚀 **Immutable Infrastructure** = servers are never modified → they’re replaced.
-
-```mermaid
-graph TD
-  Pet[🐶 Pet Server: Unique, cared for] --> Problem[❌ Manual Fix]
-  Cattle[🐮 Cattle Server: Automated, replaceable] --> Solution[✅ Auto Replace]
-```
+> 💬 *"You will never make a system safer by punishing the humans inside it."* — Sidney Dekker, *The Field Guide to Understanding Human Error*
 
 ---
 
-## 📍 Slide 15 – 📊 DevOps Metrics & KPIs
+## 📍 Slide 21 – 🧠 Key Takeaways
 
-* 📏 **Key Metrics (from DORA Research)**:
+1. 💡 **DevOps is a culture** that puts Dev and Ops on the same team with the same goals — not a job title
+2. 🛤️ **Three Ways:** Flow, Feedback, Continual Learning
+3. 📊 **DORA's four metrics** make DevOps measurable: deploy frequency, lead time, change failure rate, MTTR
+4. 🌳 **Git is the spine** of every DevOps workflow — fork, branch, PR, sign your commits
+5. 🤝 **GitHub or GitLab — pick what works for you.** Both are first-class in this course
+6. 🪶 **Blame systems, not people** — the postmortem you write after a bad day is the most valuable thing you'll produce that week
 
-  * ⏱️ **Lead Time** → time from commit → production.
-  * 📦 **Deployment Frequency** → how often new releases happen.
-  * ❌ **Change Failure Rate (CFR)** → % of changes causing failures.
-  * 🛠️ **MTTR (Mean Time to Recovery)** → how fast incidents are fixed.
-* 🎯 These metrics = **“DevOps Scorecard”** for performance.
+> 💬 *"It works on my machine" is no longer an acceptable answer.*
+
+---
+
+## 📍 Slide 22 – 🚀 What's Next + 📚 Resources
+
+* 📍 **Next lecture:** Version Control deep dive — Git's object model, reset/reflog, tagging, modern commands
+* 🧪 **Lab 1:** Fork the QuickNotes repo, configure SSH commit signing, add a PR template, open your first PR (GitHub *or* GitLab), engage with one open-source project as community proof
+* 📖 **Read this week:**
+  * 📕 *The Phoenix Project* — Kim, Behr & Spafford (2013) — Chapters 1-3
+  * 📗 *The DevOps Handbook* — Kim, Humble, Debois & Willis (2nd ed 2021) — Part I
+  * 📘 *Pro Git* — Chacon & Straub — Chapters 1-2 ([free](https://git-scm.com/book))
+* 🎥 **Watch:** [Allspaw & Hammond — "10+ Deploys per Day" (2009)](https://www.youtube.com/watch?v=LdOe18KhtT4)
+* 📝 [Knight Capital SEC filing on the 2012 incident](https://www.sec.gov/litigation/admin/2013/34-70694.pdf)
+* 📝 [Patrick Debois on the term "DevOps"](https://devopsdays.org/about) — DevOpsDays origin
 
 ```mermaid
 graph LR
-  Lead[⏱️ Lead Time] --> Success[📈 High Performance DevOps]
-  Freq[📦 Deployment Frequency] --> Success
-  CFR[❌ Change Failure Rate] --> Success
-  MTTR[🛠️ MTTR] --> Success
+    Y["📍 You Are Here<br/>DevOps + Git Foundations"] --> N["📦 Week 2<br/>Version Control Deep Dive"]
+    N --> M["🤖 Week 3<br/>CI/CD"]
+    M --> K["💻 Week 4<br/>OS & Networking"]
 ```
 
----
-
-## 📍 Slide 16 – 🤖 Automation First Approach
-
-* ⚡ **Principle**: Any manual, repeatable task should be **automated**.
-* 🧑‍💻 Benefits:
-
-  * ✅ Faster execution.
-  * ✅ Fewer human errors.
-  * ✅ Standardized processes.
-* 🔧 Examples: CI pipelines, infrastructure provisioning, monitoring alerts.
-
-**Bash Example – Automated Deployment Script:**
-
-```bash
-#!/bin/bash
-# 🚀 Simple automated deployment script
-
-echo "Building application..."
-docker build -t myapp:latest .
-
-echo "Deploying container..."
-docker run -d -p 8080:80 myapp:latest
-
-echo "✅ Deployment complete!"
-```
-
----
-
-## 📍 Slide 17 – ⚙️ Configuration Management
-
-* 📜 **Definition**: Keep infrastructure and software in a **desired state**, automatically.
-* 🛠️ Tools:
-
-  * Ansible (🧩) → YAML playbooks.
-  * Puppet (🎭) → Declarative language.
-  * Chef (👨‍🍳) → Ruby DSL.
-* 🎯 Benefits: Consistency, scalability, easy rollback.
-
-**YAML Example (Ansible Playbook):**
-
-```yaml
-- name: 🧩 Install and start Nginx
-  hosts: webservers
-  become: yes
-  tasks:
-    - name: Install Nginx
-      apt: name=nginx state=present
-    - name: Start service
-      service: name=nginx state=started
-```
-
----
-
-## 📍 Slide 18 – 📦 Containerization Basics
-
-* 📜 **Containers** = lightweight, portable units for apps + dependencies.
-* 🔧 Popular tool: Docker (🐳).
-* 🎯 Benefits:
-
-  * ✅ Consistent environments.
-  * ✅ Faster startup than VMs.
-  * ✅ Easier scaling.
-
-**Dockerfile Example:**
-
-```dockerfile
-# 🐳 Simple Dockerfile
-FROM nginx:latest
-COPY index.html /usr/share/nginx/html
-# Run: docker build -t mynginx . && docker run -p 8080:80 mynginx
-```
-
----
-
-## 📍 Slide 19 – 🗂️ Orchestration Basics (Kubernetes Preview)
-
-* 📜 **Orchestration** = managing multiple containers at scale.
-* 🌐 Kubernetes (☸️) → most popular orchestrator.
-* 🎯 Features:
-
-  * Auto-scaling.
-  * Self-healing (restart failed pods).
-  * Rolling updates.
-
-**YAML Example (Kubernetes Deployment):**
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-spec:
-  replicas: 3   # 🔄 3 containers
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:latest
-        ports:
-        - containerPort: 80
-```
-
----
-
-## 📍 Slide 20 – 🔍 Observability (Logs, Metrics, Tracing)
-
-* 📜 **Observability** = ability to understand system state via **data signals**.
-* 🔎 **Three pillars**:
-
-  * 📖 **Logs** → detailed events (errors, transactions).
-  * 📊 **Metrics** → numerical values (CPU, latency).
-  * 🧵 **Tracing** → follow a request through multiple services.
-* 🛠️ Tools: ELK Stack (📚), Prometheus (📈), Grafana (📊), Jaeger (🕵️).
-
-```mermaid
-graph TD
-  Logs[📖 Logs] --> Obs[🔍 Observability]
-  Metrics[📊 Metrics] --> Obs
-  Tracing[🧵 Tracing] --> Obs
-  Obs --> Reliability[⚡ Reliable Systems]
-```
-
----
-
-## 📍 Slide 21 – 📂 Version Control (Git Basics)
-
-* 📜 **Version Control** = tracks code changes over time.
-* 🛠️ **Git (🐙)** = most popular tool. Platforms: GitHub (🐙), GitLab (🦊), Bitbucket (🔷).
-* 🎯 Benefits:
-
-  * ✅ Collaboration.
-  * ✅ Rollbacks.
-  * ✅ Branching/merging.
-
-**Git Example (CLI):**
-
-```bash
-# 📥 Clone repository
-git clone https://github.com/example/repo.git
-
-# 🌱 Create new branch
-git checkout -b feature-login
-
-# 💾 Commit changes
-git add .
-git commit -m "✨ Added login feature"
-
-# 🚀 Push to remote
-git push origin feature-login
-```
-
----
-
-## 📍 Slide 22 – ⚙️ CI/CD Tools Overview
-
-* 🤖 **Continuous Integration / Continuous Delivery** tools:
-
-  * Jenkins (☕) → popular, plugin-based.
-  * GitHub Actions (🐙) → YAML workflows in GitHub.
-  * GitLab CI (🦊) → integrated CI/CD in GitLab.
-  * CircleCI (🔵) → cloud-native CI/CD.
-* 🎯 Purpose: build, test, deploy code automatically.
-
-```mermaid
-flowchart LR
-  Dev[👨‍💻 Code Commit] --> CI[🤖 CI Tool]
-  CI --> Test[🧪 Automated Tests]
-  Test --> Artifact[📦 Build Artifact]
-  Artifact --> CD[🚀 CD Tool]
-  CD --> Prod[🌍 Production]
-```
-
----
-
-## 📍 Slide 23 – 📦 Artifact Repositories
-
-* 📜 **Definition**: storage for **build artifacts** (compiled apps, packages, Docker images).
-* 🛠️ Tools:
-
-  * JFrog Artifactory (🐸).
-  * Sonatype Nexus (📦).
-  * GitHub Packages (🐙).
-* 🎯 Benefits:
-
-  * ✅ Centralized storage.
-  * ✅ Versioning of builds.
-  * ✅ Secure delivery.
-
-**Example (Publish Docker Image):**
-
-```bash
-# 🐳 Build Docker image
-docker build -t myapp:1.0 .
-
-# 🔑 Login to registry
-docker login registry.example.com
-
-# 🚀 Push image
-docker tag myapp:1.0 registry.example.com/myapp:1.0
-docker push registry.example.com/myapp:1.0
-```
-
----
-
-## 📍 Slide 24 – 🏗️ Infrastructure as Code (IaC) Tools
-
-* 📜 Tools for automating infra provisioning:
-
-  * Terraform (🌍) → declarative cloud resources.
-  * Pulumi (📦) → IaC with real programming languages.
-  * AWS CloudFormation (☁️).
-* 🎯 Benefits: reproducibility, automation, portability.
-
-```hcl
-# 🌍 Terraform AWS S3 bucket
-resource "aws_s3_bucket" "devops_bucket" {
-  bucket = "my-devops-bucket"
-  acl    = "private"
-}
-```
-
----
-
-## 📍 Slide 25 – ☁️ Cloud Providers
-
-* 📜 **Cloud Computing** = rent servers/storage/services on-demand.
-* 🛠️ Major providers:
-
-  * AWS (☁️).
-  * Google Cloud (🌐).
-  * Microsoft Azure (🔷).
-* 🎯 Benefits: scalability, flexibility, pay-as-you-go.
-
-```mermaid
-graph TD
-  AWS[☁️ AWS] --> Infra[🏗️ DevOps Infra]
-  GCP[🌐 GCP] --> Infra
-  Azure[🔷 Azure] --> Infra
-  Infra --> Apps[🚀 Applications]
-```
-
----
-
-## 📍 Slide 26 – 💬 Collaboration Tools
-
-* 📜 Tools that support DevOps culture:
-
-  * Slack (💬) → instant communication.
-  * Jira (📑) → issue tracking.
-  * Confluence (📚) → documentation.
-  * Teams (📞) → corporate communication.
-* 🎯 Benefits: fast communication, transparency, documentation sharing.
-
-**Slack Bot Example (CI Notification):**
-
-```yaml
-# 🤖 GitHub Actions step to send Slack message
-- name: Notify Slack
-  uses: slackapi/slack-github-action@v1.24.0
-  with:
-    payload: |
-      {
-        "text": "✅ Build Passed on main branch!"
-      }
-```
-
----
-
-## 📍 Slide 27 – 🔄 Typical DevOps Pipeline Workflow
-
-* 📜 **Stages** of a DevOps pipeline:
-
-  1. 👨‍💻 Code commit.
-  2. 🤖 Build & test.
-  3. 📦 Package artifact.
-  4. 🚀 Deploy to environment.
-  5. 📊 Monitor & feedback.
-* 🎯 Continuous loop of delivery + improvement.
-
-```mermaid
-flowchart LR
-  Dev[👨‍💻 Code Commit] --> Build[⚙️ Build]
-  Build --> Test[🧪 Test]
-  Test --> Package[📦 Artifact]
-  Package --> Deploy[🚀 Deploy]
-  Deploy --> Monitor[📊 Monitor]
-  Monitor --> Dev
-```
-
----
-
-## 📍 Slide 28 – 🐙 Example: GitHub Actions CI/CD Workflow
-
-* 📜 GitHub Actions (🐙) → automates builds, tests, deployments with **YAML workflows**.
-* 🎯 Benefits:
-
-  * ✅ Integrated with GitHub.
-  * ✅ Easy setup for pipelines.
-  * ✅ Large community marketplace.
-
-**YAML Example (CI + Deploy):**
-
-```yaml
-name: CI/CD Pipeline
-on: [push]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: npm install      # 📦 Install dependencies
-      - run: npm test         # 🧪 Run tests
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - run: echo "🚀 Deploying app..."
-```
-
----
-
-## 📍 Slide 29 – 🎬 Case Study: Netflix & Simian Army
-
-* 🏢 Netflix (🎬) = early pioneer in **cloud-native DevOps**.
-* 🐒 **Simian Army** = tools that randomly break services to test **resilience**.
-* 🎯 Lesson: Build systems to **survive failure**, not just avoid it.
-
-```mermaid
-graph TD
-  Chaos[🐒 Chaos Monkey] --> System[🖥️ Netflix Systems]
-  System --> Recover[🔄 Auto Recovery]
-  Recover --> Users[🙋‍♂️ Users]
-```
-
----
-
-## 📍 Slide 30 – 📦 Case Study: Amazon’s “You Build It, You Run It”
-
-* 📦 Amazon (AWS) developers own their code **end-to-end**.
-* 🎯 Principle: If you **write the software**, you are responsible for running it.
-* ⚡ Benefits:
-
-  * ✅ Better accountability.
-  * ✅ Faster incident resolution.
-  * ✅ Higher quality software.
-
-```mermaid
-flowchart LR
-  Dev[👨‍💻 Developer] --> Owns[🛠️ Builds Feature]
-  Owns --> Runs[⚙️ Operates Service]
-  Runs --> Feedback[📊 Learns & Improves]
-```
-
----
-
-## 📍 Slide 31 – ⚠️ Challenges in DevOps Adoption
-
-* 🧱 **Cultural resistance** → “we’ve always done it this way”.
-* 🕰️ **Legacy systems** → hard to automate old tech.
-* 🔒 **Security concerns** → fear of automating too much.
-* 🧑‍💼 **Skill gaps** → need training & mindset shifts.
-
-```mermaid
-graph TD
-  Challenge[⚠️ DevOps Challenges] --> Culture[🧱 Culture Resistance]
-  Challenge --> Legacy[🕰️ Legacy Systems]
-  Challenge --> Security[🔒 Security Concerns]
-  Challenge --> Skills[🧑‍💼 Skills Gap]
-```
-
----
-
-## 📍 Slide 32 – 🌟 Best Practices for DevOps Success
-
-* 🤝 Foster **collaboration & trust**.
-* 🤖 **Automate everything** repeatable.
-* 📊 Use **metrics & monitoring** (DORA metrics).
-* 🎓 Provide **training & continuous learning**.
-* 🔄 Start small → pilot project → scale organization-wide.
-
-```mermaid
-flowchart LR
-  Collab[🤝 Collaboration] --> Success[🌟 DevOps Success]
-  Auto[🤖 Automation] --> Success
-  Metrics[📊 Metrics] --> Success
-  Learning[🎓 Learning] --> Success
-  Scale[🔄 Pilot → Scale] --> Success
-```
-
----
-
-## 📍 Slide 33 – 🌀 DevOps Myths & Misconceptions
-
-* ❌ **“DevOps is only about tools”** → Reality: culture + process + tools.
-* ❌ **“We need a DevOps team”** → Reality: DevOps is a **shared responsibility**, not a separate silo.
-* ❌ **“DevOps = faster but less stable”** → Reality: good DevOps **improves both speed and stability**.
-* ❌ **“One toolchain fits all”** → Reality: every org tailors DevOps to its needs.
-
-```mermaid
-graph LR
-  Myth1[❌ Tools-only] --> Truth1[✅ Culture + Tools]
-  Myth2[❌ Separate Team] --> Truth2[✅ Shared Responsibility]
-  Myth3[❌ Speed vs Stability] --> Truth3[✅ Both Improve]
-  Myth4[❌ One Toolchain] --> Truth4[✅ Custom Fit]
-```
-
----
-
-## 📍 Slide 34 – ⚖️ Balancing Speed vs Stability (DevOps vs SRE)
-
-* ⚡ **DevOps** → focus on **speed of delivery**.
-* 🛡️ **SRE (Site Reliability Engineering)** → focus on **stability & reliability**.
-* 📊 Balance = deploy fast **without breaking production**.
-* 🎯 Shared tools: monitoring, automation, error budgets.
-
-```mermaid
-graph LR
-  DevOps[⚡ DevOps: Speed] --> Balance[⚖️ Balance]
-  SRE[🛡️ SRE: Reliability] --> Balance
-  Balance --> Success[🚀 Reliable + Fast Delivery]
-```
-
----
-
-## 📍 Slide 35 – 📚 Summary of Key DevOps Concepts
-
-* 🚀 **DevOps = Dev + Ops** → culture + tools + processes.
-* 🌱 **Core principles**: CAMS (Culture, Automation, Measurement, Sharing).
-* 🔄 **Practices**: CI (Continuous Integration), CD (Continuous Delivery/Deployment), IaC (Infrastructure as Code).
-* 📊 **Metrics**: MTTR (Mean Time to Recovery), CFR (Change Failure Rate), Deployment Frequency, Lead Time.
-* 📦 **Tools**: Git (🐙), Jenkins (☕), Docker (🐳), Kubernetes (☸️), Terraform (🌍).
-* ⚡ **Case studies**: Amazon (📦), Netflix (🎬), Google (🔎).
-
-```mermaid
-graph TD
-  DevOps[🚀 DevOps] --> CAMS[🌱 CAMS Principles]
-  DevOps --> CI[🔄 CI/CD]
-  DevOps --> IaC[🏗️ IaC]
-  DevOps --> Metrics[📊 Metrics]
-  DevOps --> Tools[🛠️ Tools]
-```
-
----
-
-## 📍 Slide 36 – 📖 Recommended Reading & Learning
-
-* 📕 **Books**:
-
-  * *The Phoenix Project* (🏢 IT transformation novel).
-  * *The DevOps Handbook* (📘 practices & case studies).
-  * *Accelerate* (📊 research-backed DevOps metrics).
-* 🌐 **Web Resources**:
-
-  * [devopsdays.org](https://devopsdays.org) (🎤 community events).
-  * [opensource.com/devops](https://opensource.com/tags/devops) (📰 articles).
-  * [Google SRE Book](https://sre.google/books/) (🛡️ reliability practices).
-
-```mermaid
-flowchart TD
-  Books[📕 Books] --> Learning[🎓 DevOps Knowledge]
-  Web[🌐 Online Resources] --> Learning
-  Learning --> Practice[🛠️ Practice & Projects]
-```
-
----
-
-## 📍 Slide 37 – 🛠️ Hands-on Practice Resources
-
-* 🧑‍💻 **Interactive labs**:
-
-  * [Katacoda](https://www.katacoda.com) (🧩 scenarios for DevOps tools).
-  * [Play with Docker](https://labs.play-with-docker.com) (🐳 Docker playground).
-  * [Play with Kubernetes](https://labs.play-with-k8s.com) (☸️ Kubernetes playground).
-* 📦 **GitHub Learning Lab** (🐙 tutorials with real repos).
-* 🎯 Start small → e.g., build a simple **CI/CD pipeline for a web app**.
-
-```mermaid
-graph TD
-  Labs[🧑‍💻 Interactive Labs] --> Skills[🛠️ DevOps Skills]
-  GitHub[🐙 GitHub Learning Lab] --> Skills
-  Playground[🐳 Play with Docker/K8s] --> Skills
-  Skills --> Projects[🚀 Real Projects]
-```
-
----
+> 🎯 **Remember:** Every lab in this course is a small experiment in shipping software safely. The tools change every five years. The discipline doesn't.
