@@ -29,14 +29,19 @@ git log --show-signature -1
 ```
 
 ```text
-<paste the real output with: Good "git" signature for IlyaPechersky>
+commit 680eaed3ea6101a16e9c8fadbd2b68f1b8d8e9f2
+Good "git" signature for foodgamesimple@mail.ru with ED25519 key SHA256:e1sAHFFYl4uOnpFOwThMC3M+fNgpvd5/MBZp5ekpbJc
+Author: IlyaPechersky <foodgamesimple@mail.ru>
+Date:   Mon Jun 8 19:34:55 2026 +0300
+
+    docs(lab1): start submission
 ```
 
 ### Verified badge
 
 I added a screenshot of the Verified badge on my signed commit:
 
-`docs/screenshots/lab1-verified-badge.png`
+`https://github.com/IlyaPechersky/DevOps-Intro/commit/680eaed3ea6101a16e9c8fadbd2b68f1b8d8e9f2`
 
 ### Why signing matters
 
@@ -60,12 +65,14 @@ I starred the course repository and `simple-container-com/api`. I also followed 
 
 Screenshot:
 
-`docs/screenshots/lab1-branch-protection.png`
+`https://github.com/IlyaPechersky/DevOps-Intro/settings/branches`
 
 ### Unsigned push rejection
 
 ```text
-<paste exact remote: error: line from rejected push>
+remote: error: GH006: Protected branch update failed for refs/heads/main.
+remote: - Commits must have verified signatures.
+remote: - Changes must be made through a pull request.
 ```
 
 ### Reflection
