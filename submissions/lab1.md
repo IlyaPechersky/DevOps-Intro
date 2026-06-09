@@ -57,7 +57,7 @@ I added `.github/pull_request_template.md` on `main` in my fork before opening t
 
 I starred the course repository and `simple-container-com/api`. I also followed the professor, TAs, and classmates to track real project activity and learn from their workflows.
 
-Classmates followed: `rasulzhan`, `rinat-khaibullin`, `AmirkhanM`.
+Classmates followed: `rasulzhan`, `amirkhanm`, `ilnarkhasanov`.
 
 ## Bonus - Branch Protection
 
