@@ -63,6 +63,8 @@ vet (go 1.24)
 
 It also requires branches to be up to date, PR review, signed commits, and linear history.
 
+![Branch protection rule for main](../docs/screenshots/lab3-branch-protection.png)
+
 ### Deliberate failure and fix
 
 Failing run:
