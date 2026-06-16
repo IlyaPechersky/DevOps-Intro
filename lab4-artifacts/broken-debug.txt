@@ -1,0 +1,39 @@
+### Reproduce broken deploy
+Existing listener:
+COMMAND     PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+quicknote 43857  mac    7u  IPv6 0x8bd7def08d4172e9      0t0  TCP *:8080 (LISTEN)
+
+Starting a second QuickNotes instance on the same ADDR=:8080
+2026/06/16 21:20:11 quicknotes listening on :8080 (notes loaded: 4)
+2026/06/16 21:20:11 listen: listen tcp :8080: bind: address already in use
+exit status 1
+
+### ps-style check
+  PID COMM
+43857 quicknotes
+
+Decision: one QuickNotes process is already running; the second instance failed before becoming a listener.
+
+### Is it listening?
+COMMAND     PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+quicknote 43857  mac    7u  IPv6 0x8bd7def08d4172e9      0t0  TCP *:8080 (LISTEN)
+Decision: port 8080 is occupied.
+
+### Reachable from host?
+200
+Decision: the existing service is reachable, so networking is not the root cause.
+
+### Firewall blocking?
+No ALTQ support in kernel
+ALTQ related functions disabled
+scrub-anchor "com.apple/*" all fragment reassemble
+anchor "com.apple/*" all
+Decision: local firewall is not needed to explain a bind conflict.
+
+### DNS?
+Decision: localhost name resolution is not the failure; the error happened at bind().
+
+### Repair
+{"notes":4,"status":"ok"}
+
+Decision: after clearing the conflicting listener, QuickNotes starts and /health returns JSON.

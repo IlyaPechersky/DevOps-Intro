@@ -1,0 +1,187 @@
+### curl -vk https://localhost:8443/health
+* Host localhost:8443 was resolved.
+* IPv6: ::1
+* IPv4: 127.0.0.1
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying [::1]:8443...
+* Connected to localhost (::1) port 8443
+* ALPN: curl offers h2,http/1.1
+* (304) (OUT), TLS handshake, Client hello (1):
+} [314 bytes data]
+* (304) (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* (304) (IN), TLS handshake, Unknown (8):
+{ [19 bytes data]
+* (304) (IN), TLS handshake, Certificate (11):
+{ [927 bytes data]
+* (304) (IN), TLS handshake, CERT verify (15):
+{ [78 bytes data]
+* (304) (IN), TLS handshake, Finished (20):
+{ [36 bytes data]
+* (304) (OUT), TLS handshake, Finished (20):
+} [36 bytes data]
+* SSL connection using TLSv1.3 / AEAD-CHACHA20-POLY1305-SHA256 / [blank] / UNDEF
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: [NONE]
+*  start date: Jun 16 18:22:37 2026 GMT
+*  expire date: Jun 17 06:22:37 2026 GMT
+*  issuer: CN=Caddy Local Authority - ECC Intermediate
+*  SSL certificate verify result: unable to get local issuer certificate (20), continuing anyway.
+* using HTTP/2
+* [HTTP/2] [1] OPENED stream for https://localhost:8443/health
+* [HTTP/2] [1] [:method: GET]
+* [HTTP/2] [1] [:scheme: https]
+* [HTTP/2] [1] [:authority: localhost:8443]
+* [HTTP/2] [1] [:path: /health]
+* [HTTP/2] [1] [user-agent: curl/8.7.1]
+* [HTTP/2] [1] [accept: */*]
+> GET /health HTTP/2
+> Host: localhost:8443
+> User-Agent: curl/8.7.1
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/2 200 
+< alt-svc: h3=":8443"; ma=2592000
+< content-type: application/json
+< date: Tue, 16 Jun 2026 18:22:41 GMT
+< via: 1.1 Caddy
+< content-length: 26
+< 
+{ [26 bytes data]
+100    26  100    26    0     0    332      0 --:--:-- --:--:-- --:--:--   333
+* Connection #0 to host localhost left intact
+{"notes":4,"status":"ok"}
+
+### tcpdump -r lab4-tls.pcap -nn -vv (first packets)
+reading from file lab4-artifacts/lab4-tls.pcap, link-type NULL (BSD loopback)
+21:22:41.463456 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 44) ::1.62052 > ::1.8443: Flags [S], cksum 0x0034 (incorrect -> 0x0f0d), seq 3880715088, win 65535, options [mss 16324,nop,wscale 6,nop,nop,TS val 1525191925 ecr 0,sackOK,eol], length 0
+21:22:41.463520 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 44) ::1.8443 > ::1.62052: Flags [S.], cksum 0x0034 (incorrect -> 0x3ce3), seq 2490184141, ack 3880715089, win 65535, options [mss 16324,nop,wscale 6,nop,nop,TS val 611116913 ecr 1525191925,sackOK,eol], length 0
+21:22:41.463535 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 32) ::1.62052 > ::1.8443: Flags [.], cksum 0x0028 (incorrect -> 0x9ddf), seq 1, ack 1, win 6372, options [nop,nop,TS val 1525191925 ecr 611116913], length 0
+21:22:41.463544 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 32) ::1.8443 > ::1.62052: Flags [.], cksum 0x0028 (incorrect -> 0x9ddf), seq 1, ack 1, win 6372, options [nop,nop,TS val 611116913 ecr 1525191925], length 0
+21:22:41.465692 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 351) ::1.62052 > ::1.8443: Flags [P.], cksum 0x0167 (incorrect -> 0x6363), seq 1:320, ack 1, win 6372, options [nop,nop,TS val 1525191927 ecr 611116913], length 319
+21:22:41.465718 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 32) ::1.8443 > ::1.62052: Flags [.], cksum 0x0028 (incorrect -> 0x9c9f), seq 1, ack 320, win 6368, options [nop,nop,TS val 611116916 ecr 1525191927], length 0
+21:22:41.466856 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 1313) ::1.8443 > ::1.62052: Flags [P.], cksum 0x0529 (incorrect -> 0xcd82), seq 1:1282, ack 320, win 6368, options [nop,nop,TS val 611116917 ecr 1525191927], length 1281
+21:22:41.466873 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 32) ::1.62052 > ::1.8443: Flags [.], cksum 0x0028 (incorrect -> 0x97ab), seq 320, ack 1282, win 6352, options [nop,nop,TS val 1525191929 ecr 611116917], length 0
+21:22:41.526683 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 38) ::1.62052 > ::1.8443: Flags [P.], cksum 0x002e (incorrect -> 0x7f5e), seq 320:326, ack 1282, win 6352, options [nop,nop,TS val 1525191988 ecr 611116917], length 6
+21:22:41.526699 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 90) ::1.62052 > ::1.8443: Flags [P.], cksum 0x0062 (incorrect -> 0x28a4), seq 326:384, ack 1282, win 6352, options [nop,nop,TS val 1525191988 ecr 611116917], length 58
+21:22:41.526723 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 32) ::1.8443 > ::1.62052: Flags [.], cksum 0x0028 (incorrect -> 0x971e), seq 1282, ack 326, win 6368, options [nop,nop,TS val 611116977 ecr 1525191988], length 0
+21:22:41.526734 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 32) ::1.8443 > ::1.62052: Flags [.], cksum 0x0028 (incorrect -> 0x96e4), seq 1282, ack 384, win 6368, options [nop,nop,TS val 611116977 ecr 1525191988], length 0
+21:22:41.526935 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 118) ::1.62052 > ::1.8443: Flags [P.], cksum 0x007e (incorrect -> 0xd34a), seq 384:470, ack 1282, win 6352, options [nop,nop,TS val 1525191989 ecr 611116977], length 86
+21:22:41.526949 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 32) ::1.8443 > ::1.62052: Flags [.], cksum 0x0028 (incorrect -> 0x968e), seq 1282, ack 470, win 6367, options [nop,nop,TS val 611116977 ecr 1525191989], length 0
+21:22:41.527006 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 99) ::1.62052 > ::1.8443: Flags [P.], cksum 0x006b (incorrect -> 0x174f), seq 470:537, ack 1282, win 6352, options [nop,nop,TS val 1525191989 ecr 611116977], length 67
+21:22:41.527025 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 32) ::1.8443 > ::1.62052: Flags [.], cksum 0x0028 (incorrect -> 0x964c), seq 1282, ack 537, win 6366, options [nop,nop,TS val 611116977 ecr 1525191989], length 0
+21:22:41.527628 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 99) ::1.8443 > ::1.62052: Flags [P.], cksum 0x006b (incorrect -> 0x472b), seq 1282:1349, ack 537, win 6366, options [nop,nop,TS val 611116977 ecr 1525191989], length 67
+21:22:41.527643 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 32) ::1.62052 > ::1.8443: Flags [.], cksum 0x0028 (incorrect -> 0x9618), seq 537, ack 1349, win 6351, options [nop,nop,TS val 1525191989 ecr 611116977], length 0
+21:22:41.527685 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 63) ::1.62052 > ::1.8443: Flags [P.], cksum 0x0047 (incorrect -> 0x12b7), seq 537:568, ack 1349, win 6351, options [nop,nop,TS val 1525191989 ecr 611116977], length 31
+21:22:41.527697 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 32) ::1.8443 > ::1.62052: Flags [.], cksum 0x0028 (incorrect -> 0x95ea), seq 1349, ack 568, win 6366, options [nop,nop,TS val 611116977 ecr 1525191989], length 0
+21:22:41.527711 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 76) ::1.8443 > ::1.62052: Flags [P.], cksum 0x0054 (incorrect -> 0x1a81), seq 1349:1393, ack 568, win 6366, options [nop,nop,TS val 611116978 ecr 1525191989], length 44
+21:22:41.527724 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 32) ::1.62052 > ::1.8443: Flags [.], cksum 0x0028 (incorrect -> 0x95cb), seq 568, ack 1393, win 6351, options [nop,nop,TS val 1525191990 ecr 611116978], length 0
+21:22:41.540649 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 140) ::1.8443 > ::1.62052: Flags [P.], cksum 0x0094 (incorrect -> 0xdbdd), seq 1393:1501, ack 568, win 6366, options [nop,nop,TS val 611116990 ecr 1525191990], length 108
+21:22:41.540662 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 32) ::1.62052 > ::1.8443: Flags [.], cksum 0x0028 (incorrect -> 0x9548), seq 568, ack 1501, win 6350, options [nop,nop,TS val 1525192002 ecr 611116990], length 0
+21:22:41.540677 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 89) ::1.8443 > ::1.62052: Flags [P.], cksum 0x0061 (incorrect -> 0x1299), seq 1501:1558, ack 568, win 6366, options [nop,nop,TS val 611116990 ecr 1525192002], length 57
+21:22:41.540700 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 32) ::1.62052 > ::1.8443: Flags [.], cksum 0x0028 (incorrect -> 0x950f), seq 568, ack 1558, win 6350, options [nop,nop,TS val 1525192002 ecr 611116990], length 0
+21:22:41.541076 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 56) ::1.62052 > ::1.8443: Flags [P.], cksum 0x0040 (incorrect -> 0x989a), seq 568:592, ack 1558, win 6350, options [nop,nop,TS val 1525192003 ecr 611116990], length 24
+21:22:41.541094 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 32) ::1.8443 > ::1.62052: Flags [.], cksum 0x0028 (incorrect -> 0x94e5), seq 1558, ack 592, win 6366, options [nop,nop,TS val 611116991 ecr 1525192003], length 0
+21:22:41.541121 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 56) ::1.8443 > ::1.62052: Flags [P.], cksum 0x0040 (incorrect -> 0x0e08), seq 1558:1582, ack 592, win 6366, options [nop,nop,TS val 611116991 ecr 1525192003], length 24
+21:22:41.541131 IP6 (flowlabel 0x90900, hlim 64, next-header TCP (6) payload length: 32) ::1.8443 > ::1.62052: Flags [F.], cksum 0x0028 (incorrect -> 0x94cc), seq 1582, ack 592, win 6366, options [nop,nop,TS val 611116991 ecr 1525192003], length 0
+21:22:41.541134 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 32) ::1.62052 > ::1.8443: Flags [.], cksum 0x0028 (incorrect -> 0x94dd), seq 592, ack 1582, win 6350, options [nop,nop,TS val 1525192003 ecr 611116991], length 0
+21:22:41.541139 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 32) ::1.62052 > ::1.8443: Flags [.], cksum 0x0028 (incorrect -> 0x94dc), seq 592, ack 1583, win 6350, options [nop,nop,TS val 1525192003 ecr 611116991], length 0
+21:22:41.541183 IP6 (flowlabel 0x20100, hlim 64, next-header TCP (6) payload length: 20) ::1.62052 > ::1.8443: Flags [R.], cksum 0x001c (incorrect -> 0xca47), seq 592, ack 1583, win 6350, length 0
+
+### openssl s_client -connect localhost:8443 -servername localhost -showcerts
+Connecting to ::1
+depth=1 CN=Caddy Local Authority - ECC Intermediate
+verify error:num=20:unable to get local issuer certificate
+verify return:1
+depth=0 
+verify return:1
+CONNECTED(00000007)
+---
+Certificate chain
+ 0 s:
+   i:CN=Caddy Local Authority - ECC Intermediate
+   a:PKEY: EC, (prime256v1); sigalg: ecdsa-with-SHA256
+   v:NotBefore: Jun 16 18:22:37 2026 GMT; NotAfter: Jun 17 06:22:37 2026 GMT
+-----BEGIN CERTIFICATE-----
+MIIBvzCCAWSgAwIBAgIRAMyvTq0YRKH0vvoeUq/Z5YIwCgYIKoZIzj0EAwIwMzEx
+MC8GA1UEAxMoQ2FkZHkgTG9jYWwgQXV0aG9yaXR5IC0gRUNDIEludGVybWVkaWF0
+ZTAeFw0yNjA2MTYxODIyMzdaFw0yNjA2MTcwNjIyMzdaMAAwWTATBgcqhkjOPQIB
+BggqhkjOPQMBBwNCAARA2kTfRi/tSqg4pGkbWYSqVdPPMsoJyCNCWcxBV1MEmmhM
+tTmqxmHN+0RwnH/zNjUTA8hQU5LdaDx80dUl4CD1o4GLMIGIMA4GA1UdDwEB/wQE
+AwIHgDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwHQYDVR0OBBYEFERJ
+/EZ75NmhydMfcYGjyDGp0ONqMB8GA1UdIwQYMBaAFNE6uQx9X4lhAuufb8ytQ+bB
+LzhrMBcGA1UdEQEB/wQNMAuCCWxvY2FsaG9zdDAKBggqhkjOPQQDAgNJADBGAiEA
+p3TYQeGAHSfZ4iKdNZUG42Biki9gXtD8iTzcI0H0vBICIQDrtLTbEKTs6fM7U6L4
+eKKjjpsFWDV/8zICKev2mHpW9Q==
+-----END CERTIFICATE-----
+ 1 s:CN=Caddy Local Authority - ECC Intermediate
+   i:CN=Caddy Local Authority - 2026 ECC Root
+   a:PKEY: EC, (prime256v1); sigalg: ecdsa-with-SHA256
+   v:NotBefore: Jun 16 18:22:37 2026 GMT; NotAfter: Jun 23 18:22:37 2026 GMT
+-----BEGIN CERTIFICATE-----
+MIIBxjCCAW2gAwIBAgIQXRDnVQoiIKc3nLyET0jO6TAKBggqhkjOPQQDAjAwMS4w
+LAYDVQQDEyVDYWRkeSBMb2NhbCBBdXRob3JpdHkgLSAyMDI2IEVDQyBSb290MB4X
+DTI2MDYxNjE4MjIzN1oXDTI2MDYyMzE4MjIzN1owMzExMC8GA1UEAxMoQ2FkZHkg
+TG9jYWwgQXV0aG9yaXR5IC0gRUNDIEludGVybWVkaWF0ZTBZMBMGByqGSM49AgEG
+CCqGSM49AwEHA0IABNQVfTpvltrFkGZ21R+qe36GdA9sLyhTky2kjIMD3iCtKwnf
+R/PwJXsyUAykLM/+I2QImvWUCmuNYO1p7/oQBhCjZjBkMA4GA1UdDwEB/wQEAwIB
+BjASBgNVHRMBAf8ECDAGAQH/AgEAMB0GA1UdDgQWBBTROrkMfV+JYQLrn2/MrUPm
+wS84azAfBgNVHSMEGDAWgBTvZfAO8veA3mfZxOJHJF99tj80xDAKBggqhkjOPQQD
+AgNHADBEAiAtR2JE+wQZLbvdPZ5PWmMUfMjzj3S5hXXGA7Ns8KfziAIgODNZq1HI
+Keqnq4QqAr7nLta41nK5tv8bs3GgmyMgHxs=
+-----END CERTIFICATE-----
+---
+Server certificate
+subject=
+issuer=CN=Caddy Local Authority - ECC Intermediate
+---
+No client certificate CA names sent
+Peer signing digest: SHA256
+Peer signature type: ecdsa_secp256r1_sha256
+Negotiated TLS1.3 group: X25519MLKEM768
+---
+SSL handshake has read 2360 bytes and written 1604 bytes
+Verification error: unable to get local issuer certificate
+---
+New, TLSv1.3, Cipher is TLS_AES_128_GCM_SHA256
+Protocol: TLSv1.3
+Server public key is 256 bit
+This TLS version forbids renegotiation.
+Compression: NONE
+Expansion: NONE
+No ALPN negotiated
+Early data was not sent
+Verify return code: 20 (unable to get local issuer certificate)
+---
+DONE
+---
+Post-Handshake New Session Ticket arrived:
+SSL-Session:
+    Protocol  : TLSv1.3
+    Cipher    : TLS_AES_128_GCM_SHA256
+    Session-ID: A475B0C85B0CE136ABC5D9D73966AD5F6EC8C2DF5785A76B164B1CA0EEDA3BF4
+    Session-ID-ctx: 
+    Resumption PSK: 7D3DCCD204108A5DD5D2773DBACB17160CE08333A8E3860889E90A38D7298815
+    PSK identity: None
+    PSK identity hint: None
+    SRP username: None
+    TLS session ticket lifetime hint: 604800 (seconds)
+    TLS session ticket:
+    0000 - 8b 07 c7 00 83 9a aa c5-a0 55 2d d8 ea 19 c9 95   .........U-.....
+    0010 - 83 8a 97 eb a4 2f 1b 64-b6 6c 9f 00 d7 23 a2 9e   ...../.d.l...#..
+    0020 - 70 76 57 fe c1 44 94 25-b7 49 33 2e 0c 38 fe a9   pvW..D.%.I3..8..
+    0030 - 9c f8 d5 b3 7d 67 b5 08-0d 59 c6 32 f1 c9 11 5d   ....}g...Y.2...]
+    0040 - 5a fc 70 aa f7 98 c4 de-5e 6f 00 8d 7e 2c 7e 9d   Z.p.....^o..~,~.
+    0050 - 74 05 a9 b2 8e 21 c3 e4-0a 3b 28 75 92 0e b0 0b   t....!...;(u....
+    0060 - 8f 80 0d 9d ed 7b 28 dd-18                        .....{(..
+
+    Start Time: 1781634179
+    Timeout   : 7200 (sec)
+    Verify return code: 20 (unable to get local issuer certificate)
+    Extended master secret: no
+    Max Early Data: 0
+---
+read R BLOCK

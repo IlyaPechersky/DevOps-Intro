@@ -1,0 +1,30 @@
+### ss -tlnp | grep :8080
+ss is Linux-only and not installed on this macOS host.
+macOS equivalent:
+COMMAND     PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+quicknote 43857  mac    7u  IPv6 0x8bd7def08d4172e9      0t0  TCP *:8080 (LISTEN)
+
+### ip route show
+iproute2 is Linux-only and not installed on this macOS host.
+macOS equivalent:
+   route to: default
+destination: default
+       mask: default
+  interface: utun4
+      flags: <UP,DONE,CLONING,STATIC,GLOBAL>
+ recvpipe  sendpipe  ssthresh  rtt,msec    rttvar  hopcount      mtu     expire
+       0         0         0         0         0         0      1500         0 
+
+### mtr -rwc 5 localhost
+Start: 2026-06-16T21:19:40+0300
+HOST: 172-78-0-9.adr02.prtg.in.ip.frontiernet.net Loss%   Snt   Last   Avg  Best  Wrst StDev
+  1.|-- localhost                                    0.0%     5    0.1   0.1   0.1   0.2   0.0
+
+### dig +short example.com @1.1.1.1
+172.66.147.243
+104.20.23.154
+
+### journalctl --user -u quicknotes -n 20 || true
+journalctl is Linux/systemd-only and not installed on this macOS host.
+QuickNotes was run directly; process logs:
+2026/06/16 21:19:02 quicknotes listening on :8080 (notes loaded: 5)
